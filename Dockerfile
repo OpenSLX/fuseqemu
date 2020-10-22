@@ -19,4 +19,5 @@ run apt-get update && DEBIAN_FRONTEND="noninteractive" apt-get -y install \
 copy --from=0 \
   /src/target/release/fuseqemu \
   /opt/fuseqemu/
+copy mount-qcow* /opt/fuseqemu/
 env PATH="/opt/fuseqemu:${PATH}"

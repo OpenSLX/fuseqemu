@@ -1,0 +1,9 @@
+#!/bin/sh
+set -eu
+
+IMAGE="$1"
+MOUNTPOINT="$(cat "$IMAGE.lock")"
+
+fusermount -u -- "$MOUNTPOINT"
+inotifywait -e delete "$IMAGE.lock" || true
+test ! -e "$IMAGE.lock"

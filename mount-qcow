@@ -1,0 +1,29 @@
+#!/bin/sh
+set -x
+set -eu
+
+IMAGE="$1"
+MOUNTPOINT="$2"
+shift 2
+
+PREFIX="$(dirname -- "$0")"
+
+LOCK_FILE="$IMAGE.lock"
+
+test ! -s "$MOUNTPOINT"
+
+set -C
+  # Should be a symlink but this would not work with `inotifywait`
+  # (<https://github.com/rvoicilas/inotify-tools/pull/74>):
+  # ln -s "$MOUNTPOINT" "$LOCK_FILE"
+  echo "$MOUNTPOINT" > "$LOCK_FILE"
+set +C
+
+(
+  "$PREFIX/fuseqemu" -- "$IMAGE" "$MOUNTPOINT" "$@" || true
+  rm "$LOCK_FILE"
+) &
+
+while test -e "$LOCK_FILE" && ! mountpoint -q "$MOUNTPOINT"; do
+  sleep 1
+done
