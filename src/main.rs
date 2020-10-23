@@ -62,6 +62,10 @@ struct Opt {
     #[structopt(short = "r", long = "read-only")]
     ro: bool,
 
+    /// Modify reported size of image
+    #[structopt(short = "s", long = "size")]
+    size: Option<u64>,
+
     /// The rest of FUSE options.
     #[structopt(parse(from_os_str))]
     opts: Vec<OsString>,
@@ -113,7 +117,10 @@ let res = {
 
     let mut tcp = UnixStream::connect(&socket_path)?;
     let mut tcp = bufstream::BufStream::new(tcp);
-    let export = handshake(&mut tcp, cmd.export.as_bytes())?;
+    let mut export = handshake(&mut tcp, cmd.export.as_bytes())?;
+    if let Some(size) = cmd.size {
+        export.size = size;
+    }
     let mut client = NbdClient::new(&mut tcp, &export);
 
     let default_fuse_opts = vec!["-o", "auto_unmount"];
