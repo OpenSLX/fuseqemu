@@ -20,7 +20,7 @@ set -C
 set +C
 
 (
-  "$PREFIX/fuseqemu" -- "$IMAGE" "$MOUNTPOINT" "$@" || true
+  "$PREFIX/fuseqemu" "$IMAGE" "$MOUNTPOINT" "$@" || true
   rm "$LOCK_FILE"
 ) &
 
